@@ -15,7 +15,7 @@ module.exports = merge(baseConfig, {
 		main: './src/scripts/index.js',
 	},
   output: {
-    filename: './radiometer-emulator/[name].[chunkhash].bundle.js',
+    filename: './[name].[chunkhash].bundle.js',
     path: path.resolve(__dirname, 'docs'),
     publicPath: '/',
   },
@@ -46,7 +46,7 @@ module.exports = merge(baseConfig, {
     new CompressionPlugin(),
     new CleanWebpackPlugin(),
     new MiniCssExtractPlugin({
-      filename: './radiometer-emulator/[name].[chunkhash].styles.css',
+      filename: './[name].[chunkhash].styles.css',
     }),
     new HtmlWebPackPlugin({
       template: './src/views/index.html',
