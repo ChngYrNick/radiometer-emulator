@@ -1,99 +1,127 @@
 import getRandom from '../helpers/get-random-int';
 
 export default class Radiometer {
-  constructor(minutes) {
+  constructor() {
     this.imp = {
-      first: [],
-      second: [],
+      field: [],
+      drug: [],
       lead: [],
       steel: [],
       aluminum: []
     };
+    this.minutes = 1;
+    this.isRunning = false;
+    this.type = 'field';
+    this.intervals = [];
+    this.timeouts = [];
 
-    this.impAverage = {
-      first: null,
-      second: null,
-      lead: null,
-      steel: null,
-      aluminum: null
-    };
+    this.updateDisplay(0);
+    this.rotateKnob(1);
+    this.resetLamps();
+    document.querySelector(`[data-type='${this.type}']`).classList.toggle('active-panel-btn');
+  }
 
-    this.display = '0000';
+  resetLamps(position) {
+    const lamps = Object.values(document.getElementsByClassName('lamp'));
+    lamps
+      .filter((lamp) => lamp.classList.contains('active-lamp'))
+      .forEach((lamp) => lamp.classList.toggle('active-lamp'));
+    lamps.filter((_, i) => i < (position || this.minutes)).forEach((lamp) => lamp.classList.toggle('active-lamp'));
+  }
 
-    this.minutes = minutes || 1;
-
-    Object.values(document.getElementsByClassName('lamp'))[this.minutes - 1].classList.toggle('active-lamp');
+  rotateKnob(position) {
+    if (!this.isRunning && !position) {
+      this.minutes = this.minutes === 5 ? (this.minutes = 1) : (this.minutes += 1);
+      this.resetLamps();
+    }
 
     const knob = document.getElementById('knob');
-    switch (this.minutes) {
+    switch (position || this.minutes) {
       case 1:
+        if (position) this.resetLamps(position);
         knob.style.transform = 'rotate(-40deg)';
         break;
       case 2:
+        if (position) this.resetLamps(position);
         knob.style.transform = 'rotate(-25deg)';
         break;
       case 3:
+        if (position) this.resetLamps(position);
         knob.style.transform = 'rotate(0deg)';
         break;
       case 4:
+        if (position) this.resetLamps(position);
         knob.style.transform = 'rotate(25deg)';
         break;
       case 5:
+        if (position) this.resetLamps(position);
         knob.style.transform = 'rotate(40deg)';
         break;
       default:
     }
   }
 
-  rotateKnob() {
-    Object.values(document.getElementsByClassName('lamp'))[this.minutes - 1].classList.toggle('active-lamp');
-    this.minutes = this.minutes === 5 ? (this.minutes = 1) : (this.minutes += 1);
-    Object.values(document.getElementsByClassName('lamp'))[this.minutes - 1].classList.toggle('active-lamp');
+  runTimer(currentMinute) {
+    this.generateImps();
+    let currentImps = 0;
+    this.intervals.push(
+      setInterval(() => {
+        currentImps += 1;
+        this.updateDisplay(currentImps);
+      }, Math.floor(60000 / this.imp[this.type][this.imp[this.type].length - 1]))
+    );
 
-    const knob = document.getElementById('knob');
-    switch (this.minutes) {
-      case 1:
-        knob.style.transform = 'rotate(-40deg)';
-        break;
-      case 2:
-        knob.style.transform = 'rotate(-25deg)';
-        break;
-      case 3:
-        knob.style.transform = 'rotate(0deg)';
-        break;
-      case 4:
-        knob.style.transform = 'rotate(25deg)';
-        break;
-      case 5:
-        knob.style.transform = 'rotate(40deg)';
-        break;
-      default:
-    }
-  }
+    this.intervals.push(
+      setInterval(() => {
+        Object.values(document.getElementsByClassName('lamp'))[currentMinute - 1].classList.toggle('active-lamp');
+      }, 800)
+    );
 
-  generateImps() {
-    for (let i = 0; i < this.minutes; i += 1) {
-      this.imp.first.push(getRandom(13, 17));
-      this.imp.second.push(getRandom(18, 22));
-      this.imp.lead.push(getRandom(17, 21));
-      this.imp.steel.push(getRandom(15, 19));
-      this.imp.aluminum.push(getRandom(16, 20));
-    }
-  }
-
-  calculateAverages() {
-    Object.entries(this.imp).forEach(([key, value]) => {
-      this.impAverage[key] = value.reduce((acc, currVal) => acc + currVal) / this.minutes;
-      this.impAverage[key] = this.impAverage[key].toFixed(3);
-    });
-
-    this.changeDisplay(
-      this.imp.first.reduce((acc, currVal) => acc + currVal)
+    this.timeouts.push(
+      setTimeout(() => {
+        this.intervals.forEach((interval) => clearInterval(interval));
+        this.intervals = [];
+        this.draw();
+        this.updateDisplay(0);
+        if (currentMinute - 1 > 0) {
+          this.rotateKnob(currentMinute - 1);
+          this.runTimer(currentMinute - 1);
+          return;
+        }
+        this.rotateKnob(this.minutes);
+        this.isRunning = false;
+        document.getElementById('start-btn').classList.toggle('active-btn');
+      }, 60000)
     );
   }
 
+  generateImps() {
+    if (this.imp[this.type].length >= this.minutes) {
+      this.imp[this.type] = [];
+    }
+
+    switch (this.type) {
+      case 'field':
+        this.imp[this.type].push(getRandom(13, 17));
+        break;
+      case 'drug':
+        this.imp[this.type].push(getRandom(18, 22));
+        break;
+      case 'lead':
+        this.imp[this.type].push(getRandom(17, 21));
+        break;
+      case 'steal':
+        this.imp[this.type].push(getRandom(15, 19));
+        break;
+      case 'aluminum':
+        this.imp[this.type].push(getRandom(16, 20));
+        break;
+      default:
+    }
+  }
+
   // This is so bad! But im tired af and wand to sleep :(
-  changeDisplay(total) {
+  updateDisplay(total) {
     const totalLength = total.toString().length;
     switch (totalLength) {
       case 1:
@@ -111,50 +139,43 @@ export default class Radiometer {
       default:
         this.display = '0000';
     }
+
+    document.getElementById('dial').innerHTML = this.display;
   }
 
   reset() {
     this.imp = {
-      first: [],
-      second: [],
+      field: [],
+      drug: [],
       lead: [],
       steel: [],
       aluminum: []
     };
+    this.intervals.forEach((interval) => clearInterval(interval));
+    this.intervals = [];
+    this.timeouts.forEach((timeout) => clearTimeout(timeout));
+    this.timeouts = [];
 
-    this.impAverage = {
-      first: null,
-      second: null,
-      lead: null,
-      steel: null,
-      aluminum: null
-    };
-
-    this.display = '0000';
+    this.minutes = 1;
+    this.isRunning = false;
+    document.getElementById('start-btn').classList.remove('active-btn');
+    this.updateDisplay(0);
+    this.rotateKnob(1);
+    this.draw();
   }
 
-  draw(table) {
+  draw() {
+    const table = document.getElementById('table');
     table.style.display = 'none';
 
     Object.values(document.getElementsByClassName('temp-row')).forEach((elem) => {
       elem.parentNode.removeChild(elem);
     });
 
-		const dial = document.getElementById('dial');
-
-    if (!this.imp.first.length) {
-      const row = table.rows[table.rows.length - 1];
-      row.cells[1].innerHTML = '';
-      row.cells[2].innerHTML = '';
-      row.cells[3].innerHTML = '';
-      row.cells[5].innerHTML = '';
-      row.cells[7].innerHTML = '';
+    if (!this.imp.field.length) {
       table.style.display = 'table';
-			dial.innerHTML = "0000";
       return;
     }
-
-		dial.innerHTML = this.display;
 
     for (let i = 0; i < this.minutes; i += 1) {
       const row = table.insertRow(3 + i);
@@ -162,25 +183,25 @@ export default class Radiometer {
       let cell = row.insertCell();
       cell.innerHTML = i + 1;
       cell = row.insertCell();
-      cell.innerHTML = this.imp.first[i];
+      cell.innerHTML = this.imp.field[i] || ' ';
       cell = row.insertCell();
-      cell.innerHTML = this.imp.second[i];
+      cell.innerHTML = this.imp.drug[i] || ' ';
       cell = row.insertCell();
-      cell.innerHTML = this.imp.lead[i];
+      cell.innerHTML = this.imp.lead[i] || ' ';
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '4.6';
         cell.rowSpan = `${this.minutes}`;
       }
       cell = row.insertCell();
-      cell.innerHTML = this.imp.steel[i];
+      cell.innerHTML = this.imp.steel[i] || ' ';
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '5.9';
         cell.rowSpan = `${this.minutes}`;
       }
       cell = row.insertCell();
-      cell.innerHTML = this.imp.aluminum[i];
+      cell.innerHTML = this.imp.aluminum[i] || ' ';
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '5.9';
@@ -188,19 +209,11 @@ export default class Radiometer {
       }
     }
 
-    const row = table.rows[table.rows.length - 1];
-    row.cells[1].innerHTML = this.impAverage.first;
-    row.cells[2].innerHTML = this.impAverage.second;
-    row.cells[3].innerHTML = this.impAverage.lead;
-    row.cells[5].innerHTML = this.impAverage.steel;
-    row.cells[7].innerHTML = this.impAverage.aluminum;
-
     table.style.display = 'table';
   }
 
   start() {
-    this.reset();
-    this.generateImps();
-    this.calculateAverages();
+    this.isRunning = true;
+    this.runTimer(this.minutes);
   }
 }

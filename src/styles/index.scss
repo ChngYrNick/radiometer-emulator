@@ -25,6 +25,10 @@ table, th, td {
 	color: #c00000;
 }
 
+.active-panel-btn {
+	color: green;
+}
+
 .control-panel {
 	padding-bottom: $free-space;
 }
@@ -73,6 +77,7 @@ table, th, td {
 }
 
 .btn {
+	transition: 0.5s;
 	text-decoration: none;
 	width: 35px;
 	height: 35px;
@@ -97,6 +102,10 @@ table, th, td {
 	position: absolute;
 	left: 25px;
 	top: 40px;
+}
+
+.active-btn {
+	background-color: #cc2836;
 }
 
 .reset-btn {
@@ -142,6 +151,7 @@ table, th, td {
 	top: 20px;
 
 	.lamp {
+		transition: 0.5s;
 		width: 20px;
 		height: 20px;
 		background-color: #6f2b22;
@@ -185,6 +195,7 @@ table, th, td {
 	display: flex;
 	justify-content: center;
 	cursor: pointer;
+	transition: 0.3s;
 
 	.arrow {
 		background-color: #e4e8ea;
