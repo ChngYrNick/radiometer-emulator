@@ -17,7 +17,7 @@ module.exports = merge(baseConfig, {
   output: {
     filename: './[name].[chunkhash].bundle.js',
     path: path.resolve(__dirname, 'docs'),
-    publicPath: '/',
+    publicPath: '../public',
   },
   module: {
     rules: [
