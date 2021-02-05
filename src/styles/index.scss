@@ -30,11 +30,133 @@ table, th, td {
 }
 
 .control-panel {
-	padding-bottom: $free-space;
+	padding-bottom: $free-space / 2;
+	display: flex;
+
+	button {
+		width: 150px;
+		height: 40px;
+		margin-right: $free-space / 2;
+	}
+}
+
+.radiometer-wrap {
+	width: 100%;
+	display: flex;
+}
+
+.geiger-muller-counter {
+	margin: $free-space 0 $free-space / 2;
+	flex-grow: 1;
+	height: 350px;
+	position: relative;
+
+	#drug {
+		transition: 1s;
+		background-color: #8294ae;
+		width: 10px;
+		height: 75px;
+		position: absolute;
+		border: 2px solid #5c7b98;
+		left: 212.5px;
+		z-index: 5;
+		// display: none;
+		top: 0px;
+	}
+
+	#plate {
+		transition: 1s;
+		background-color: #90939f;
+		border: 2px solid darkgray;
+		width: 20px;
+		height: 150px;
+		left: 157.5px;
+		position: absolute;
+		z-index: 5;
+		// display: none;
+		top: 0px;
+	}
+
+	.counter {
+		height: 325px;
+		width: 50px;
+		background-color: #dfdade;
+		position: absolute;
+		bottom: 0;
+		left: 30px;
+
+		.empty-space {
+			background-color: #fff;
+			width: 25px;
+			height: 200px;
+			right: 0;
+			bottom: 75px;
+			position: absolute;
+		}
+
+		.rod {
+			background-color: #cd7f32;
+			width: 12.5px;
+			height: 200px;
+			left: 0;
+			position: absolute;
+		}
+	}
+
+	.cell {
+		height: 250px;
+		width: 200px;
+		background-color: #292428;
+		position: absolute;
+		bottom: 0;
+		right: 20px;
+
+		.back-wall {
+			position: absolute;
+			width: 25px;
+			height: 250px;
+			right: 0;
+			background-color: #1a1a1c;
+		}
+
+		.cell-wall-1 {
+			position: absolute;
+			width: 25px;
+			height: 250px;
+			left: 0;
+			background-color: #404352;
+		}
+
+		.cell-wall-2 {
+			position: absolute;
+			width: 25px;
+			height: 250px;
+			left: 50px;
+			background-color: #404352;
+		}
+
+		.cell-wall-3 {
+			position: absolute;
+			width: 25px;
+			height: 250px;
+			left: 100px;
+			background-color: #404352;
+		}
+	}
+
+	.bottom-plate {
+		width: 340px;
+		height: 50px;
+		background-color: #803f23;
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		z-index: 10;
+	}
 }
 
 .radiometer {
-	margin: $free-space 0 $free-space;
+	margin: $free-space 0 $free-space / 2;
 	align-self: center;
 	height: 350px;
 	width: 800px;
@@ -151,7 +273,7 @@ table, th, td {
 	top: 20px;
 
 	.lamp {
-		transition: 0.5s;
+		transition: 0.8s;
 		width: 20px;
 		height: 20px;
 		background-color: #6f2b22;
@@ -160,7 +282,8 @@ table, th, td {
 	}
 
 	.active-lamp {
-		background-color: #cc2836;
+		// background-color: #cc2836;
+		background-color: #ff0000;
 	}
 }
 

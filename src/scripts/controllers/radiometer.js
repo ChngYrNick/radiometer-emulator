@@ -31,8 +31,19 @@ export default class Radiometer {
 
   rotateKnob(position) {
     if (!this.isRunning && !position) {
+      document
+        .getElementById('audio-rotate-knob-right')
+        .cloneNode(true)
+        .play();
       this.minutes = this.minutes === 5 ? (this.minutes = 1) : (this.minutes += 1);
       this.resetLamps();
+    }
+
+    if (position) {
+      document
+        .getElementById('audio-rotate-knob-left')
+        .cloneNode(true)
+        .play();
     }
 
     const knob = document.getElementById('knob');
@@ -71,10 +82,26 @@ export default class Radiometer {
       }, Math.floor(60000 / this.imp[this.type][this.imp[this.type].length - 1]))
     );
 
+    let secondsPassed = 0;
+    this.intervals.push(
+      setInterval(() => {
+        secondsPassed += 1;
+        return secondsPassed % 2
+          ? document
+              .getElementById('audio-tick-2')
+              .cloneNode(true)
+              .play()
+          : document
+              .getElementById('audio-tick-1')
+              .cloneNode(true)
+              .play();
+      }, 1000)
+    );
+
     this.intervals.push(
       setInterval(() => {
         Object.values(document.getElementsByClassName('lamp'))[currentMinute - 1].classList.toggle('active-lamp');
-      }, 800)
+      }, 1000)
     );
 
     this.timeouts.push(
@@ -88,6 +115,10 @@ export default class Radiometer {
           this.runTimer(currentMinute - 1);
           return;
         }
+        document
+          .getElementById('audio-loop-end')
+          .cloneNode(true)
+          .play();
         this.rotateKnob(this.minutes);
         this.isRunning = false;
         document.getElementById('start-btn').classList.toggle('active-btn');
@@ -110,7 +141,7 @@ export default class Radiometer {
       case 'lead':
         this.imp[this.type].push(getRandom(17, 21));
         break;
-      case 'steal':
+      case 'steel':
         this.imp[this.type].push(getRandom(15, 19));
         break;
       case 'aluminum':
