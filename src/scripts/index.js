@@ -4,6 +4,8 @@ import '../styles/index.scss';
 
 const radiometer = new Radiometer();
 
+radiometer.setTimer();
+
 document.getElementById('start-btn').addEventListener(
   'click',
   (event) => {
@@ -14,6 +16,14 @@ document.getElementById('start-btn').addEventListener(
       .play();
     radiometer.start();
     event.target.classList.toggle('active-btn');
+  },
+  false
+);
+
+document.getElementById('clear-table-btn').addEventListener(
+  'click',
+  () => {
+    radiometer.clearTable();
   },
   false
 );
@@ -42,10 +52,11 @@ Object.values(document.getElementById('control-panel').children).forEach((elem) 
       if (radiometer.isRunning) return;
       const drug = document.getElementById('drug');
       const plate = document.getElementById('plate');
+      const textField = document.getElementById('plate-text-field').children[0];
       // drug.style.display = 'none';
       // plate.style.display = 'none';
-			drug.style.top = '0px';
-			plate.style.top = '0px';
+      drug.style.top = '0px';
+      plate.style.top = '0px';
       document
         .getElementById('audio-switch-type')
         .cloneNode(true)
@@ -58,29 +69,29 @@ Object.values(document.getElementById('control-panel').children).forEach((elem) 
         case 'field':
           break;
         case 'drug':
-					drug.style.display = 'block';
-					drug.style.top = '175px';
+          drug.style.display = 'block';
+          drug.style.top = '175px';
           break;
         case 'lead':
-					plate.style.display = 'block';
-					plate.style.top = '150px';
-					plate.style.backgroundColor = '#90939f';
-					drug.style.display = 'block';
-					drug.style.top = '175px';
+          plate.style.display = 'block';
+          plate.style.top = '150px';
+          drug.style.display = 'block';
+          drug.style.top = '175px';
+          textField.innerHTML = 'lead';
           break;
         case 'steel':
-					plate.style.display = 'block';
-					plate.style.top = '150px';
-					plate.style.backgroundColor = '#a8aeb1';
-					drug.style.display = 'block';
-					drug.style.top = '175px';
+          plate.style.display = 'block';
+          plate.style.top = '150px';
+          drug.style.display = 'block';
+          drug.style.top = '175px';
+          textField.innerHTML = 'steel';
           break;
         case 'aluminum':
-					plate.style.display = 'block';
-					plate.style.top = '150px';
-					plate.style.backgroundColor = '#c0c0c0';
-					drug.style.display = 'block';
-					drug.style.top = '175px';
+          plate.style.display = 'block';
+          plate.style.top = '150px';
+          drug.style.display = 'block';
+          drug.style.top = '175px';
+          textField.innerHTML = 'aluminum';
           break;
         default:
       }

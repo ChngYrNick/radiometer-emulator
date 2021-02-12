@@ -46,6 +46,8 @@
 			<source src="SNDLOAD2.wav" type="audio/wav" preload="auto" autobuffer controls>
 		</audio>
 
+    <div id="timer" class="timer"></div>
+
 		<div class="heading-container">
 			<h3>STUDY OF IONIZING<br> RADIATION USING A RADIOMETER</h3>
 		</div>
@@ -94,10 +96,12 @@
 				</div>
 
 				<div id="plate" class="plate">
+          <div id="plate-text-field" class="text-field"><p class="font_small">lead</p></div>
 				</div>
 				<div class="counter">
 					<div class="empty-space">
-						<div class="rod"></div>
+						<div class="rod">
+            </div>
 					</div>
 				</div>
 				<div class="cell">
@@ -165,5 +169,7 @@
 		    <th>mm</th>
 		  </tr>
 		</table>
+
+    <button id="clear-table-btn">Clear table</button>
   </body>
 </html>

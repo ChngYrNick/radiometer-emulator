@@ -14,11 +14,27 @@ export default class Radiometer {
     this.type = 'field';
     this.intervals = [];
     this.timeouts = [];
+    this.datePast = new Date();
+    this.dateNow = new Date();
 
     this.updateDisplay(0);
     this.rotateKnob(1);
     this.resetLamps();
     document.querySelector(`[data-type='${this.type}']`).classList.toggle('active-panel-btn');
+  }
+
+  setDate(datePast, dateNow) {
+    this.datePast = datePast;
+    this.dateNow = dateNow;
+  }
+
+  setTimer() {
+    const timer = document.getElementById('timer');
+    const delta = Math.abs(this.dateNow - this.datePast) / 1000;
+    const minutes = Math.floor(delta / 60) % 60;
+    const seconds = Math.floor(delta % 60);
+
+    timer.innerHTML = `${minutes}:${seconds.toString().length < 2 ? `0${seconds}`: seconds}`;
   }
 
   resetLamps(position) {
@@ -72,9 +88,11 @@ export default class Radiometer {
     }
   }
 
-  runTimer(currentMinute) {
+  runTimer(currentMinute, imps) {
+    this.setDate(new Date(), new Date());
+    this.setTimer();
     this.generateImps();
-    let currentImps = 0;
+    let currentImps = imps || 0;
     this.intervals.push(
       setInterval(() => {
         currentImps += 1;
@@ -85,6 +103,8 @@ export default class Radiometer {
     let secondsPassed = 0;
     this.intervals.push(
       setInterval(() => {
+        this.setDate(this.datePast, new Date());
+        this.setTimer();
         secondsPassed += 1;
         return secondsPassed % 2
           ? document
@@ -109,10 +129,12 @@ export default class Radiometer {
         this.intervals.forEach((interval) => clearInterval(interval));
         this.intervals = [];
         this.draw();
-        this.updateDisplay(0);
+        this.setDate(new Date(), new Date());
+        this.setTimer();
         if (currentMinute - 1 > 0) {
+          this.updateDisplay(currentImps + 1);
           this.rotateKnob(currentMinute - 1);
-          this.runTimer(currentMinute - 1);
+          this.runTimer(currentMinute - 1, currentImps + 1);
           return;
         }
         document
@@ -175,6 +197,24 @@ export default class Radiometer {
   }
 
   reset() {
+    this.intervals.forEach((interval) => clearInterval(interval));
+    this.intervals = [];
+    this.timeouts.forEach((timeout) => clearTimeout(timeout));
+    this.timeouts = [];
+    this.setDate(new Date(), new Date());
+    this.setTimer();
+
+    this.minutes = 1;
+    this.isRunning = false;
+    document.getElementById('start-btn').classList.remove('active-btn');
+    this.updateDisplay(0);
+    this.rotateKnob(1);
+  }
+
+  clearTable() {
+    if(this.isRunning) {
+      return;
+    }
     this.imp = {
       field: [],
       drug: [],
@@ -182,16 +222,6 @@ export default class Radiometer {
       steel: [],
       aluminum: []
     };
-    this.intervals.forEach((interval) => clearInterval(interval));
-    this.intervals = [];
-    this.timeouts.forEach((timeout) => clearTimeout(timeout));
-    this.timeouts = [];
-
-    this.minutes = 1;
-    this.isRunning = false;
-    document.getElementById('start-btn').classList.remove('active-btn');
-    this.updateDisplay(0);
-    this.rotateKnob(1);
     this.draw();
   }
 
