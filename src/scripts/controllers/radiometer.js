@@ -89,7 +89,7 @@ export default class Radiometer {
   }
 
   runTimer(currentMinute, imps) {
-    this.setDate(new Date(), new Date());
+    this.setDate(new Date(), new Date(new Date().getTime() + 60000));
     this.setTimer();
     this.generateImps();
     let currentImps = imps || 0;
@@ -103,7 +103,7 @@ export default class Radiometer {
     let secondsPassed = 0;
     this.intervals.push(
       setInterval(() => {
-        this.setDate(this.datePast, new Date());
+        this.setDate(new Date(), this.dateNow);
         this.setTimer();
         secondsPassed += 1;
         return secondsPassed % 2
@@ -232,11 +232,6 @@ export default class Radiometer {
     Object.values(document.getElementsByClassName('temp-row')).forEach((elem) => {
       elem.parentNode.removeChild(elem);
     });
-
-    if (!this.imp.field.length) {
-      table.style.display = 'table';
-      return;
-    }
 
     for (let i = 0; i < this.minutes; i += 1) {
       const row = table.insertRow(3 + i);
