@@ -20,6 +20,7 @@ export default class Radiometer {
     this.updateDisplay(0);
     this.rotateKnob(1);
     this.resetLamps();
+
     document.querySelector(`[data-type='${this.type}']`).classList.toggle('active-panel-btn');
   }
 
@@ -34,7 +35,7 @@ export default class Radiometer {
     const minutes = Math.floor(delta / 60) % 60;
     const seconds = Math.floor(delta % 60);
 
-    timer.innerHTML = `${minutes}:${seconds.toString().length < 2 ? `0${seconds}`: seconds}`;
+    timer.innerHTML = `${minutes}:${seconds.toString().length < 2 ? `0${seconds}` : seconds}`;
   }
 
   resetLamps(position) {
@@ -89,15 +90,14 @@ export default class Radiometer {
   }
 
   runTimer(currentMinute, imps) {
-    this.setDate(new Date(), new Date(new Date().getTime() + 60000));
+		const generatedImps = this.generateImps();
     this.setTimer();
-    this.generateImps();
     let currentImps = imps || 0;
     this.intervals.push(
       setInterval(() => {
         currentImps += 1;
         this.updateDisplay(currentImps);
-      }, Math.floor(60000 / this.imp[this.type][this.imp[this.type].length - 1]))
+      }, Math.floor(60000 / generatedImps))
     );
 
     let secondsPassed = 0;
@@ -128,13 +128,13 @@ export default class Radiometer {
       setTimeout(() => {
         this.intervals.forEach((interval) => clearInterval(interval));
         this.intervals = [];
-        this.draw();
-        this.setDate(new Date(), new Date());
         this.setTimer();
+				this.imp[this.type].push(generatedImps);
+        this.updateDisplay((imps || 0) + generatedImps);
+        this.draw();
         if (currentMinute - 1 > 0) {
-          this.updateDisplay(currentImps + 1);
           this.rotateKnob(currentMinute - 1);
-          this.runTimer(currentMinute - 1, currentImps + 1);
+          this.runTimer(currentMinute - 1, (imps || 0) + generatedImps);
           return;
         }
         document
@@ -149,26 +149,17 @@ export default class Radiometer {
   }
 
   generateImps() {
-    if (this.imp[this.type].length >= this.minutes) {
-      this.imp[this.type] = [];
-    }
-
     switch (this.type) {
       case 'field':
-        this.imp[this.type].push(getRandom(13, 17));
-        break;
+				return getRandom(13, 17);
       case 'drug':
-        this.imp[this.type].push(getRandom(18, 22));
-        break;
+				return getRandom(18, 22);
       case 'lead':
-        this.imp[this.type].push(getRandom(17, 21));
-        break;
+				return getRandom(17, 21);
       case 'steel':
-        this.imp[this.type].push(getRandom(15, 19));
-        break;
+				return getRandom(15, 19);
       case 'aluminum':
-        this.imp[this.type].push(getRandom(16, 20));
-        break;
+				return getRandom(16, 20);
       default:
     }
   }
@@ -212,7 +203,7 @@ export default class Radiometer {
   }
 
   clearTable() {
-    if(this.isRunning) {
+    if (this.isRunning) {
       return;
     }
     this.imp = {
@@ -233,7 +224,11 @@ export default class Radiometer {
       elem.parentNode.removeChild(elem);
     });
 
-    for (let i = 0; i < this.minutes; i += 1) {
+    const maxLength = Object.values(this.imp)
+      .map((arr) => arr.length)
+      .reduce((max, length) => (length > max ? length : max));
+
+    for (let i = 0; i < maxLength; i += 1) {
       const row = table.insertRow(3 + i);
       row.classList.add('temp-row');
       let cell = row.insertCell();
@@ -247,21 +242,21 @@ export default class Radiometer {
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '4.6';
-        cell.rowSpan = `${this.minutes}`;
+        cell.rowSpan = `${maxLength}`;
       }
       cell = row.insertCell();
       cell.innerHTML = this.imp.steel[i] || ' ';
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '5.9';
-        cell.rowSpan = `${this.minutes}`;
+        cell.rowSpan = `${maxLength}`;
       }
       cell = row.insertCell();
       cell.innerHTML = this.imp.aluminum[i] || ' ';
       if (!i) {
         cell = row.insertCell();
         cell.innerHTML = '5.9';
-        cell.rowSpan = `${this.minutes}`;
+        cell.rowSpan = `${maxLength}`;
       }
     }
 
@@ -270,6 +265,7 @@ export default class Radiometer {
 
   start() {
     this.isRunning = true;
+    this.setDate(new Date(), new Date(new Date().getTime() + this.minutes * 60000));
     this.runTimer(this.minutes);
   }
 }
